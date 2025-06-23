@@ -1,8 +1,11 @@
 const express = require('express'); // // Include the express module
+const cookieParser = require('cookie-parser');
+const authRoutes = require('./src/routes/authRoutes');
 
 const app = express(); // Instantiate express app.
 
 app.use(express.json()); //Middleware to conver json to javascript object.
+app.use('/auth', authRoutes);
 
 const PORT = 5001;
 app.listen(5001, (error) => {
