@@ -3,7 +3,9 @@ const authController = require('../controller/authController');
 const router = express.Router(); // Instance of Router
 
 router.post('/login', authController.login);
-router.post('/login', authController.logout);
-router.post('/login', authController.isUserLoggedIn);
+router.post('/logout', authController.logout);
+router.post('/is-user-logged-in', authController.isUserLoggedIn);
+router.post("/register", authController.register);
+router.post("/google-auth", authController.googleAuth);
 
 module.exports = router;
