@@ -2,14 +2,20 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const Users = require("../model/Users");
 const { GoogleAuth, OAuth2Client } = require("google-auth-library");
+const { validationResult } = require('express-validator');
 const { request, response } = require("express");
 //https://www.uuidgenerator.net/
-const secret = "42e816ec-a1b2-4e95-9cdd-24f4480a648a";
+const secret = "58eeb678-a532-421c-8efc-fc0078896f3b";
 const authController = {
   login: async (request, response) => {
-    //The Body contains user name and password because of the express.json()
-    //middleware configured in the server.js
     try {
+      const errors = validationResult(request);
+      if (!errors.isEmpty()) {
+        return response.status(401).json({ errors: errors.array() });
+      }
+      
+      //The Body contains user name and password because of the express.json()
+      //middleware configured in the server.js
       const { username, password } = request.body;
 
       //
