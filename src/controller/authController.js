@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const Users = require("../model/Users");
 const { GoogleAuth, OAuth2Client } = require("google-auth-library");
-const { validationResult } = require('express-validator');
+const { validationResult, cookie } = require('express-validator');
 const { request, response } = require("express");
 //https://www.uuidgenerator.net/
 const secret = process.env.JWT_SECRET;
@@ -84,7 +84,21 @@ const authController = {
         name: name
       });
       await user.save();
-      response.status(200).json({ message: "User Registered" });
+      const userDetails = {
+
+        id: user._id,
+        name: user.name,
+        email: user.email
+      };
+      const token = jwt.sign(userDetails, secret, { expiresIn: '1h' });
+
+      response.cookie('jwtToken', token, {
+        httpOnly: true,
+        secure: true,
+        domain: 'localhost',
+        path: '/'
+      });
+      response.json({ message: 'User registered', user: userDetails });
     } catch (error) {
       console.log(error);
       return response.status(500).json({ error: "Internal Server error" });
@@ -119,7 +133,7 @@ const authController = {
       }
 
       const user = {
-        id: data._id? data._id : googleId,
+        id: data._id ? data._id : googleId,
         username: email,
         name: name
       };
