@@ -5,7 +5,8 @@ const { GoogleAuth, OAuth2Client } = require("google-auth-library");
 const { validationResult } = require('express-validator');
 const { request, response } = require("express");
 //https://www.uuidgenerator.net/
-const secret = "58eeb678-a532-421c-8efc-fc0078896f3b";
+const secret = process.env.JWT_SECRET;
+
 const authController = {
   login: async (request, response) => {
     try {
@@ -13,7 +14,7 @@ const authController = {
       if (!errors.isEmpty()) {
         return response.status(401).json({ errors: errors.array() });
       }
-      
+
       //The Body contains user name and password because of the express.json()
       //middleware configured in the server.js
       const { username, password } = request.body;
