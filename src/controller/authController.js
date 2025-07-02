@@ -33,7 +33,9 @@ const authController = {
         id: data._id,
         name: data.name,
         email: data.email,
+        role: data.role ? data.role : 'admin'
       };
+
       const token = jwt.sign(user, secret, { expiresIn: "1h" });
       response.cookie("jwtToken", token, {
         httpOnly: true,
@@ -81,7 +83,8 @@ const authController = {
       const user = new Users({
         email: username,
         password: encryptedPassword,
-        name: name
+        name: name,
+        role: data.role ? data.role : 'admin'
       });
       await user.save();
       const userDetails = {
@@ -127,7 +130,8 @@ const authController = {
           email: email,
           name: name,
           isGoogleUser: true,
-          googleId: googleId
+          googleId: googleId,
+          role: 'admin'
         });
         await data.save();
       }
@@ -135,7 +139,8 @@ const authController = {
       const user = {
         id: data._id ? data._id : googleId,
         username: email,
-        name: name
+        name: name,
+        role: data.role ? data.role : 'admin' // This is the ensure backward compatibility
       };
 
       const token = jwt.sign(user, secret, { expiresIn: '1h' });
