@@ -33,7 +33,9 @@ const authController = {
         id: data._id,
         name: data.name,
         email: data.email,
-        role: data.role ? data.role : 'admin'
+        role: data.role ? data.role : 'admin',
+        adminId: data.adminId
+        
       };
 
       const token = jwt.sign(user, secret, { expiresIn: "1h" });
