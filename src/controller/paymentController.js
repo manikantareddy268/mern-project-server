@@ -155,6 +155,7 @@ const paymentController = {
                 .digest('hex');
 
             if (expectedSignature !== signature) {
+                console.log('Invalid signature');
                 return response.status(400).send('Invalid Signature');
             }
 
@@ -196,20 +197,20 @@ const paymentController = {
                         'subscription.id': razorpaySubscriptionId,
                         'subscription.status': newStatus,
                         'subscription.planId': subscriptionData.plan_id,
-                        'subscription:start': subscriptionData.start_at
+                        'subscription.start': subscriptionData.start_at
                             ? new Date(subscriptionData.start_at * 1000)
                             : null,
-                        'subscription:end': subscriptionData.end_at
+                        'subscription.end': subscriptionData.end_at
                             ? new Date(subscriptionData.end_at * 1000)
                             : null,
-                        'subscription:lastBillDate': subscriptionData.current_start
+                        'subscription.lastBillDate': subscriptionData.current_start
                             ? new Date(subscriptionData.current_start * 1000)
                             : null,
-                        'subscription:nextBillDate': subscriptionData.current_end
+                        'subscription.nextBillDate': subscriptionData.current_end
                             ? new Date(subscriptionData.current_end * 1000)
                             : null,
-                        'subscription:paymentsMade': subscriptionData.paid_count,
-                        'subscription:paymentsRemaining': subscriptionData.remaining_count,
+                        'subscription.paymentsMade': subscriptionData.paid_count,
+                        'subscription.paymentsRemaining': subscriptionData.remaining_count,
                     }
                 },
                 { new: true }
@@ -222,7 +223,7 @@ const paymentController = {
 
             console.log(`Updated subscription status for user ${user.username}
                 to ${newStatus}`);
-            return response.status(200).send(`Event processed for user: ${userId}`);
+            return response.status(200).send('Event processed for successfully');
         } catch (error) {
             console.log(error);
             return response.status(500).json({
