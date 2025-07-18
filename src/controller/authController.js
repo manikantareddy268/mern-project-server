@@ -3,9 +3,11 @@ const bcrypt = require("bcryptjs");
 const Users = require("../model/Users");
 const { GoogleAuth, OAuth2Client } = require("google-auth-library");
 const { validationResult, cookie } = require('express-validator');
+const { attemptToRefreshToken } = require('../util/authUtil');
 const { request, response } = require("express");
 //https://www.uuidgenerator.net/
 const secret = process.env.JWT_SECRET;
+const refreshSecret = process.env.JWT_REFRESH_TOKEN_SECRET;
 
 const authController = {
   login: async (request, response) => {
@@ -46,6 +48,17 @@ const authController = {
         domain: "localhost",
         path: "/",
       });
+
+      const refreshToken = jwt.sign(user, refreshSecret, { expiresIn: '7d' });
+      // Store it in the database if you want! Storing in DB will
+      // make refresh tokens more secure.
+      response.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: true,
+        domain: 'localhost',
+        path: '/'
+      });
+
       response.json({ user: user, message: "User authenticated" });
     } catch (error) {
       console.log(error);
@@ -63,6 +76,20 @@ const authController = {
     }
     jwt.verify(token, secret, async (error, user) => {
       if (error) {
+        const refreshToken = request.cookies?.refreshToken;
+        if (refreshToken) {
+          const { newAccessToken, user } =
+            await attemptToRefreshToken(refreshToken);
+          response.cookie('jwtToken', newAccessToken, {
+            httpOnly: true,
+            secure: true,
+            domain: 'localhost',
+            path: '/'
+          });
+
+          console.log('Refresh token renewed the access token');
+          return response.json({ message: 'User is logged in', user: user });
+        }
         return response.status(401).json({ message: "Unauthorized access" });
       } else {
         const latestUserDetails = await Users.findById({ _id: user.id });
@@ -150,8 +177,19 @@ const authController = {
         credits: data.credits
       };
 
+      // Making 1 minute only for testing, revert it back to 1h
       const token = jwt.sign(user, secret, { expiresIn: '1h' });
       response.cookie('jwtToken', token, {
+        httpOnly: true,
+        secure: true,
+        domain: 'localhost',
+        path: '/'
+      });
+
+      const refreshToken = jwt.sign(user, refreshSecret, { expiresIn: '7d' });
+      // Store it in the database if you want! Storing in DB will
+      // make refresh tokens more secure.
+      response.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: true,
         domain: 'localhost',
