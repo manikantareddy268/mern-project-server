@@ -1,3 +1,5 @@
 node_modules/
 .env
-pakage-lock.json
+
+# Ignore all package-lock.json files in all subdirectories
+**/package-lock.json
