@@ -73,6 +73,12 @@ const authController = {
       path: '/',
       sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
     });
+    response.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
+    });
     response.json({ message: "Logout Successfull" });
   },
   isUserLoggedIn: async (request, response) => {
